@@ -12,12 +12,6 @@ from google.cloud.aiplatform.gapic import (
     PredictionServiceClient,
 )
 from google.cloud.aiplatform.models import Prediction
-from google.cloud.aiplatform_v1beta1.services.prediction_service import (
-    PredictionServiceAsyncClient as v1beta1PredictionServiceAsyncClient,
-)
-from google.cloud.aiplatform_v1beta1.services.prediction_service import (
-    PredictionServiceClient as v1beta1PredictionServiceClient,
-)
 from google.protobuf import json_format
 from google.protobuf.struct_pb2 import Value
 from langchain_core.outputs import Generation, LLMResult
@@ -115,19 +109,18 @@ class _VertexAIBase(BaseModel):
         return values
 
     @property
-    def prediction_client(self) -> v1beta1PredictionServiceClient:
+    def prediction_client(self) -> PredictionServiceClient:
         """Returns PredictionServiceClient."""
         if self.client is None:
-            self.client = v1beta1PredictionServiceClient(
+            self.client = PredictionServiceClient(
                 credentials=self.credentials,
                 client_options=self.client_options,
                 client_info=get_client_info(module=self._user_agent),
-                transport=self.api_transport,
             )
         return self.client
 
     @property
-    def async_prediction_client(self) -> v1beta1PredictionServiceAsyncClient:
+    def async_prediction_client(self) -> PredictionServiceAsyncClient:
         """Returns PredictionServiceClient."""
         if self.async_client is None:
             async_client_kwargs: dict[str, Any] = dict(
@@ -139,7 +132,7 @@ class _VertexAIBase(BaseModel):
             if self.api_transport is not None:
                 async_client_kwargs["transport"] = self.api_transport
 
-            self.async_client = v1beta1PredictionServiceAsyncClient(
+            self.async_client = PredictionServiceAsyncClient(
                 **async_client_kwargs
             )
 
