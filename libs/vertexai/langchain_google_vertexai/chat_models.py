@@ -584,7 +584,7 @@ async def _acompletion_with_retry(
     generation_method: Callable,
     *,
     max_retries: int,
-    run_manager: Optional[CallbackManagerForLLMRun] = None,
+    run_manager: Optional[AsyncCallbackManagerForLLMRun] = None,
     **kwargs: Any,
 ) -> Any:
     """Use tenacity to retry the completion call."""
@@ -1153,7 +1153,7 @@ class ChatVertexAI(_VertexAICommon, BaseChatModel):
             return formatted_safety_settings
         raise ValueError("safety_settings should be either")
 
-    def _prepare_request_gemini(
+     def _prepare_request_gemini(
         self,
         messages: List[BaseMessage],
         stop: Optional[List[str]] = None,
@@ -1176,7 +1176,7 @@ class ChatVertexAI(_VertexAICommon, BaseChatModel):
             generation_config=self._generation_config_gemini(
                 stream=stream, stop=stop, **kwargs
             ),
-            model=self.full_model_name,
+            model=self.full_model_name,  # Ensure this follows the correct format
         )
 
     def _generate_gemini(
@@ -1203,12 +1203,11 @@ class ChatVertexAI(_VertexAICommon, BaseChatModel):
         run_manager: Optional[AsyncCallbackManagerForLLMRun] = None,
         **kwargs: Any,
     ) -> ChatResult:
+        request = self._prepare_request_gemini(messages=messages, stop=stop, **kwargs)
         response = await _acompletion_with_retry(
             self.async_prediction_client.generate_content,
             max_retries=self.max_retries,
-            request=self._prepare_request_gemini(
-                messages=messages, stop=stop, **kwargs
-            ),
+            request=request,
             is_gemini=True,
             metadata=self.default_metadata,
             **kwargs,
